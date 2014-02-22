@@ -3,6 +3,6 @@
  * GET home page.
  */
 
-exports.index = function(req, res){
-  res.render('index', { title: 'Express what' });
+exports.inputMess = function(req, res){
+  res.render('inputMess', { title: 'Express what' });
 };
