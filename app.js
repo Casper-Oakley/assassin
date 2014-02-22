@@ -34,6 +34,10 @@ app.get('/leaderboard', function(req,res){
 	res.render('leaderboard',{title:"LeaderBoard"})
 });
 
+app.get('/userhub', function(req,res){
+	res.render('userhub',{title:"User Profile"})
+});
+
 var db = mongoose.connection;
 db.on('error',console.error.bind(console, 'connection error:'));
 db.once('open', function callback(){
@@ -146,10 +150,6 @@ app.post('/incoming', function(req, res) {
 		}
 	});
   }
-});
-
-user1.find({},function(err,docs){
-	console.log(docs[0].name);
 });
 
 http.createServer(app).listen(app.get('port'), function(){
