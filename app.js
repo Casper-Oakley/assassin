@@ -107,8 +107,7 @@ passport.use(new LocalStrategy(
 
 app.post('/index',
   passport.authenticate('local', { successRedirect: '/userhub',
-                                   failureRedirect: '/index',
-                                   failureFlash: true })
+                                   failureRedirect: '/'})
 );
 
 http.createServer(app).listen(app.get('port'), function(){
