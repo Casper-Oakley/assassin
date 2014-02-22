@@ -1,0 +1,4 @@
+assassin
+========
+
+assassin hacksoc event
