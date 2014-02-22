@@ -15,7 +15,7 @@ var twilio = require('twilio');
 var client = new twilio.RestClient('ACd33440265fbfd13384a294c4aca2f63b','0495474119a09a662a5e6744d276aa89');
 
 /*client.sms.messages.create({
-	to:'+447884036188',
+	to:'+447810494417',
 	from:'+441482240221',
 	body:'Test'
 }, function(error,message){
@@ -32,7 +32,8 @@ var app = express();
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
+  //app.set('view engine', 'jade');
+  app.engine('jade', require('jade').__express);
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
