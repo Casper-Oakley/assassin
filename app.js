@@ -35,6 +35,10 @@ app.get('/leaderboard', function(req,res){
 	res.render('leaderboard',{title:"LeaderBoard"})
 });
 
+app.get('/userhub', function(req,res){
+	res.render('userhub',{title:"User Profile"})
+});
+
 var db = mongoose.connection;
 db.on('error',console.error.bind(console, 'connection error:'));
 db.once('open', function callback(){
