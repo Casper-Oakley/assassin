@@ -35,30 +35,6 @@ app.get('/leaderboard', function(req,res){
 	res.render('leaderboard',{title:"LeaderBoard"})
 });
 
-app.post('/incoming', function(req, res) {
-  var message = req.body.Body;
-  var from = req.body.From;
-  sys.log('From: ' + from + ', Message: ' + message);
-  var twiml = '<?xml version="1.0" encoding="UTF-8" ?>n<Response>n<Sms>Thanks for your text, well be in touch.</Sms>n</Response>';
-  res.send(twiml, {'Content-Type':'text/xml'}, 200);
-  client.sms.messages.create({
-	  //to:'+447884036188',
-	  to: from,
-	  from:'+441482240221',
-	  //body:'Test'
-	  body: message
-  }, function(error,message){
-	  if(!error){
-		  console.log('wahey message sent successfully.');
-		  console.log('ID is ' + message.sid);
-	  } else{
-		  console.log('error: ' + error);
-	  }
-  });
-});
-
-
-
 var db = mongoose.connection;
 db.on('error',console.error.bind(console, 'connection error:'));
 db.once('open', function callback(){
@@ -66,29 +42,58 @@ db.once('open', function callback(){
 
 var user = mongoose.Schema({
 	name: String,
+	pass: String,
 	ID: Number,
-	isPicked: Boolean
+	isPicked: Boolean,
+	isDead: Boolean
 });
 
-var user1 = mongoose.model('account',user);
+var user1 = mongoose.model('user1',user);
 
-var testUser1 = new user1({ name: 'Casper Oakley', ID: 1,isPicked: false});
-var testUser2 = new user1({ name: 'Sam Berkay', ID: 2,isPicked: false});
+var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: false, isDead: false});
+var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: false, isDead: false});
 
-console.log(testUser1.name);
-console.log(testUser2.name);
+testUser1.save();
+testUser2.save();
+
+app.post('/incoming', function(req, res) {
+  var message = req.body.Body;
+  var from = req.body.From;
+  sys.log('From: ' + from + ', Message: ' + message);
+  var twiml = '<?xml version="1.0" encoding="UTF-8" ?>n<Response>n<Sms>text recieved</Sms>n</Response>';
+  res.send(twiml, {'Content-Type':'text/xml'}, 200);
+  if(message=='confirmed'){
+    user1.findOne({'isPicked': false}, 'name', function (err, username){
+		message = 'Your next target is ' + username.name + '. Good luck.';
+        client.sms.messages.create({
+	        to: from,
+	        from:'+441482240221',
+	        body: message
+        }, function(error,message){
+	        if(!error){
+		        console.log('wahey message sent successfully.');
+		        console.log('ID is ' + message.sid);
+	        } else{
+		        console.log('error: ' + error);
+	        }
+        });
+	});
+  }
+});
+
+
 
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 
 passport.use(new LocalStrategy(
-  function(username, password, done) {
-    User.findOne({ username: username }, function(err, user) {
+  function(name, pass, done) {
+    User.findOne({ name: name }, function(err, user) {
       if (err) { return done(err); }
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
       }
-      if (!user.validPassword(password)) {
+      if (!user.validPassword(pass)) {
         return done(null, false, { message: 'Incorrect password.' });
       }
       return done(null, user);
@@ -96,7 +101,7 @@ passport.use(new LocalStrategy(
   }
 ));
 
-app.post('/login',
+app.post('/index',
   passport.authenticate('local', { successRedirect: '/userhub',
                                    failureRedirect: '/index',
                                    failureFlash: true })
