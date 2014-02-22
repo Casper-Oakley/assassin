@@ -5,6 +5,7 @@
 
 var express = require('express')
   , http = require('http')
+  , passport = require('passport')
   , hbs = require('hbs');
 
 var mongoose = require('mongoose');
@@ -77,6 +78,29 @@ var testUser2 = new user1({ name: 'Sam Berkay', ID: 2,isPicked: false});
 console.log(testUser1.name);
 console.log(testUser2.name);
 
+var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    User.findOne({ username: username }, function(err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+
+app.post('/login',
+  passport.authenticate('local', { successRedirect: '/userhub',
+                                   failureRedirect: '/index',
+                                   failureFlash: true })
+);
 
 http.createServer(app).listen(app.get('port'), function(){
 	var resp = new twilio.TwimlResponse();
