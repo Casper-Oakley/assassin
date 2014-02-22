@@ -14,6 +14,8 @@ var twilio = require('twilio');
 
 var client = new twilio.RestClient('ACd33440265fbfd13384a294c4aca2f63b','0495474119a09a662a5e6744d276aa89');
 
+var sys = require('sys');
+
 /*client.sms.messages.create({
 	to:'+447810494417',
 	from:'+441482240221',
@@ -52,7 +54,7 @@ app.get('/input', input.inputMess);
 app.post('/incoming', function(req, res) {
   var message = req.body.Body;
   var from = req.body.From;
-  console.log('From: ' + from + ', Message: ' + message);
+  sys.log('From: ' + from + ', Message: ' + message);
   var twiml = '<?xml version="1.0" encoding="UTF-8" ?>n<Response>n<Sms>Thanks for your text, well be in touch.</Sms>n</Response>';
   res.send(twiml, {'Content-Type':'text/xml'}, 200);
 });
