@@ -52,7 +52,7 @@ app.get('/input', input.inputMess);
 app.post('/incoming', function(req, res) {
   var message = req.body.Body;
   var from = req.body.From;
-  sys.log('From: ' + from + ', Message: ' + message);
+  console.log('From: ' + from + ', Message: ' + message);
   var twiml = '<?xml version="1.0" encoding="UTF-8" ?>n<Response>n<Sms>Thanks for your text, well be in touch.</Sms>n</Response>';
   res.send(twiml, {'Content-Type':'text/xml'}, 200);
 });
