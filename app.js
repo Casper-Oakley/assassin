@@ -53,12 +53,12 @@ var WebSocketServer = require('ws').Server
 		totalDeath: Number
 	});
 	var user1 = mongoose.model('user1',user);
-	var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg',score: 0,totalScore: 0,totalDeath: 0,email: 'casper_oakley@hotmail.com'});
-	var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg',score: 0,totalScore: 0,totalDeath: 0,email: 's'});
-	var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './images/3.jpg',score: 0,totalScore: 0,totalDeath: 0,email: 's'});
-	var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg',score: 0,totalScore: 0,totalDeath: 0, email: 's'});
-	var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg',score: 0,totalScore: 0,totalDeath: 0, email: 's'});
-	var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg',score: 0,totalScore: 0,totalDeath: 0, email: 's'});
+	var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg',score: 0,totalScore: 8,totalDeath: 5,email: 'casper_oakley@hotmail.com'});
+	var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg',score: 0,totalScore: 0,totalDeath: 3,email: 's'});
+	var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './images/3.jpg',score: 0,totalScore: 9,totalDeath: 2,email: 's'});
+	var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg',score: 0,totalScore: 2,totalDeath: 1, email: 's'});
+	var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg',score: 0,totalScore: 9,totalDeath: 4, email: 's'});
+	var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg',score: 0,totalScore: 28,totalDeath: 8, email: 's'});
 	//testUser1.save();
 	//testUser2.save();
 	//testUser3.save();
@@ -251,7 +251,23 @@ wss.on('connection', function(ws){
 				console.log('new user added. name: ' + response.name);
 		}
 		else if(response.type=='login'){
-			console.log(respone.name + ' attempting to log in');
+			console.log(response.name + ' attempting to log in with pass '+response.pass);
+			user1.findOne({name:response.name},{pass:response.pass},function(err,username){
+				if(username==null){
+					ws.send('fail');
+				}
+				else{
+					ws.send('success');
+				}
+			});
+		}
+		else if(response.type=='userhub'){
+			user1.findOne({name:response.name},'totalScore totalDeath isDead enemyID ID',function(err,username){
+				user1.findOne({ID:username.enemyID},'totalScore totalDeath name',function(err,username2){
+					var jsonSend = {name: username2.name,kills:username.totalScore,deaths:username.totalDeath,isDead:username.isDead,ID:username.ID,enemyKills:username2.totalScore,enemyDeaths:username2.totalDeath};
+					ws.send(JSON.stringify(jsonSend));
+				});
+			});
 		}
 	});
 });
