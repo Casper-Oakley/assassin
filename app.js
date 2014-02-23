@@ -5,7 +5,8 @@
 
 var express = require('express')
   , http = require('http')
-  , hbs = require('hbs');
+  , hbs = require('hbs')
+  , async = require('async');
 
 var WebSocketServer = require('ws').Server
 var mongoose = require('mongoose');
@@ -63,7 +64,7 @@ var user1 = mongoose.model('user1',user);
 
 var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg'});
 var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg'});
-var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '07810494417', enemyID: 4, url: './images/3.jpg'});
+var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './images/3.jpg'});
 var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg'});
 var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg'});
 var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg'});
@@ -82,8 +83,9 @@ app.post('/incoming', function(req, res) {
   sys.log('From: ' + from + ', Message: ' + message);
   var twiml = '<?xml version="1.0" encoding="UTF-8" ?>n<Response>n<Sms>text recieved</Sms>n</Response>';
   res.send(twiml, {'Content-Type':'text/xml'}, 200);
-  if(message=='confirmed'){
-			 user1.findOne({'number':from},'enemyID ID',function(err,username2){
+  if(message=='confirm'){
+			 user1.findOne({'number':from},'enemyID ID isDead',function(err,username2){
+				 if(username2.isDead == false){
 			 user1.findOne({'ID':username2.enemyID},'name ID enemyID',function(err,username3){
 			 user1.findOne({'ID':username3.enemyID},'name ID enemyID',function(err,username){
 				  message = 'Your next target is ' + username.name + '. You just killed ' + username3.name;
@@ -107,7 +109,12 @@ app.post('/incoming', function(req, res) {
 			 });
 			 });
           });
+		}
+		else{
+			console.log(from + " sent the message " + message);
+		}
 	  });
+	console.log(from + " sent the message " + message);
   }
   else if(message=='who'){
 	 user1.findOne({'number':from},'enemyID ID',function(err,username2){
@@ -155,14 +162,14 @@ app.post('/incoming', function(req, res) {
 			user1.find({}, function (err,docs){
 				var totalCount = 0;
 				user1.count({}, function( err, count1){
-					totalCount=count1;
+				totalCount=count1;
 				var count = 1;
-				for(;count<totalCount;count++){
-					var from = docs[count-1].number;
-					user1.findOne({ID:docs[count-1].enemyID},'name',function(err,username){
+				async.each(docs,function (item,err){
+					var from = item.number;
+					user1.findOne({ID:item.enemyID},'name',function(err,username){
 						var target = username.name;
-						console.log(from + " " + target + " " + count);
-				  /*client.sms.messages.create({
+						console.log(from + " " + target);
+				  client.sms.messages.create({
 					  to: from,
 					  from:'+441482240221',
 					  body: 'Welcome to ass-soc. Your target is ' + target +'. Reply with confirm if you have killed your target. If you have forgotten who your target is, text who'
@@ -173,9 +180,9 @@ app.post('/incoming', function(req, res) {
 					  } else{
 						  console.log('error: ' + error);
 					  }
-					 });*/
+					 });
 					});
-				}
+				});
 			});
 		});
 		}
