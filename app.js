@@ -48,6 +48,7 @@ var WebSocketServer = require('ws').Server
 	//testUser5.save();
 	//testUser6.save();
 //});
+
 var twilio = require('twilio');
 
 var client = new twilio.RestClient('ACd33440265fbfd13384a294c4aca2f63b','0495474119a09a662a5e6744d276aa89');
@@ -79,9 +80,6 @@ app.get('/leaderboard', function(req,res){
 app.get('/userhub', function(req,res){
 	res.render('userhub',{title:"User Profile"})
 });
-
-
-
 
 app.post('/incoming', function(req, res) {
   var message = req.body.Body;
