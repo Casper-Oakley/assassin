@@ -7,6 +7,7 @@ var express = require('express')
   , http = require('http')
   , hbs = require('hbs');
 
+var WebSocketServer = require('ws').Server
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/test');
 
@@ -28,6 +29,10 @@ app.use(express.bodyParser());
 
 app.get('/', function(req,res){
   res.render('index',{title:"stabman"});
+});
+
+app.get('/signup', function(req,res){
+  res.render('signup',{title:"signup"});
 });
 
 app.get('/leaderboard', function(req,res){
@@ -57,11 +62,11 @@ var user = mongoose.Schema({
 var user1 = mongoose.model('user1',user);
 
 var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg'});
-var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '1234', enemyID: 3, url: './images/2.jpg'});
-var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '2345', enemyID: 4, url: './images/3.jpg'});
-var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '2445', enemyID: 5,url: './images/4.jpg'});
-var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '2545', enemyID: 6,url: './images/5.jpg'});
-var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '2645', enemyID: 1,url: './images/6.jpg'});
+var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg'});
+var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '07810494417', enemyID: 4, url: './images/3.jpg'});
+var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg'});
+var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg'});
+var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg'});
 
 
 //testUser1.save()
@@ -126,7 +131,7 @@ app.post('/incoming', function(req, res) {
   }
   else if(message=='reset')
   {
-	user1.findOne({'ID':1},'number',function(err,username){
+	user1.findOne({'name':'Casper Oakley'},'number',function(err,username){
 		if(username.number==from){
 			var totalCount;
 			user1.count({}, function( err, count){
@@ -144,16 +149,52 @@ app.post('/incoming', function(req, res) {
 				user1.findOne({ID:count},'ID',function(err,username){
 				  user1.remove({ID:username.ID});
 				  username.enemyID=1;
-				  username.save()
+				  username.save();
 				});
-			})
+			});
+			user1.find({}, function (err,docs){
+				var totalCount = 0;
+				user1.count({}, function( err, count1){
+					totalCount=count1;
+				var count = 1;
+				for(;count<totalCount;count++){
+					var from = docs[count-1].number;
+					user1.findOne({ID:docs[count-1].enemyID},'name',function(err,username){
+						var target = username.name;
+						console.log(from + " " + target + " " + count);
+				  /*client.sms.messages.create({
+					  to: from,
+					  from:'+441482240221',
+					  body: 'Welcome to ass-soc. Your target is ' + target +'. Reply with confirm if you have killed your target. If you have forgotten who your target is, text who'
+				  }, function(error,message){
+					  if(!error){
+						  console.log('wahey message sent successfully.');
+						  console.log('ID is ' + message.sid);
+					  } else{
+						  console.log('error: ' + error);
+					  }
+					 });*/
+					});
+				}
+			});
+		});
 		}
 	});
   }
 });
-
-http.createServer(app).listen(app.get('port'), function(){
+var server = http.createServer(app);
+server.listen(app.get('port'), function(){
 	var resp = new twilio.TwimlResponse();
 	console.log(resp.toString());
   console.log("Express server listening on port " + app.get('port'));
+});
+
+var wss = new WebSocketServer({server: server});
+wss.on('connection', function(ws){
+	ws.on('message',function(message){
+		var response = JSON.parse(message);
+				var tempUser = new user1({ name: response.name,pass: response.pass, ID: 0,isPicked: true, isDead: true, number: response.number, enemyID: 0,url: ' '});
+				tempUser.save();
+				console.log('new user added. name: ' + response.name);
+	});
 });

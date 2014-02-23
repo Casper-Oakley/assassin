@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+<script src="js/signup.js"></script>
 	<style>
 		body 		{ padding-top:80px; }
 	</style>
@@ -12,17 +13,13 @@
 
 	<h1><span class="fa fa-sign-in"></span> Signup</h1>
 
-	<form action="/signup" method="post">
 			<label>Name</label>
-			<input type="text" class="form-control" name="name">
+			<input type="text" id="user" class="form-control" name="user">
 			<label>Password</label>
-			<input type="password" class="form-control" name="pass">
+			<input type="password" id="pass" class="form-control" name="pass">
 			<label>Number</label>
-			<input type="text" class="form-control" name="Image url">
-
-		<button type="submit">Signup</button>
-	</form>
-
+			<input type="text" id="number" class="form-control" name="number">
+		<input id="button" name="button" type="submit" value="test"/>
 	<p><a href="/">home</a></p>
 
 </div>

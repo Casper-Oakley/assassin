@@ -1,0 +1,60 @@
+/* Set the font style to the main body of the website */
+body {
+font-family : 'Myriad Pro', 'Helvetica', sans-serif;
+font-size : medium;
+    background: #222222;
+    color: #DDDDDD
+}
+h2 { font-family : 'Myriad Pro', 'Helvetica', sans-serif;
+font-size : medium;
+    color: #DDDDDD}
+
+	/* Reduces the space between the h1 and h2 elements */
+h1, h2 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+/* Changes the style of h3 relative to the body */
+h3 {
+display: block;
+font-size: 1.17em;
+margin-before: 1em;
+margin-after: 1em;
+margin-start: 0;
+margin-end: 0;
+font-weight: bold; }
+
+
+dd {
+display: block;
+font-size: 1.17em;
+margin-before: 1em;
+margin-after: 1em;
+margin-start: 0;
+margin-end: 0;
+font-weight: bold; }
+
+    TD {
+    font-size : LARGE;
+ font-weight: bold;
+        padding-right : 20px;
+}
+
+
+        
+footer { font-family : 'Myriad Pro', 'Helvetica', sans-serif;
+    font-size : 0.8em;}
+
+	/* sets the minimum and maximum width and positioning of the page */
+#wrap.nav { min-width: 725px; background-color : #222222; padding-left: 20%;}
+#wrap.body { max-width: 900px; min-width:300px; margin: 0  auto; }
+#wrap.foot { padding-left: 25%}
+
+/* Creates the style of selected page and highlighted page in the navigation bar */
+#nav li{ display: inline; list-style-type: none; padding-right: 1%}
+#nav li a { font-size:2.0em; line-height: 40px; padding:0 15px; color: #dddddd; text-decoration: none; text-shadow:0 2px 1px #333}
+#nav li a:hover,
+#nav li.active a{ font-size: 2.em; background: #505050; color:#D2FD00; text-shadow:0 1px 1px #333; }
+#nav img { float: right}
+#nav img { display: inline; padding-top: 2px; padding - right: 10px}
