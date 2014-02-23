@@ -12,6 +12,21 @@ var express = require('express')
 var mongodb = require('mongodb')
   , MongoClient = mongodb.MongoClient;
    
+  var nodemailer = require("nodemailer");
+
+var fs = require('fs');
+
+  // create reusable transport method (opens pool of SMTP connections)
+var smtpTransport = nodemailer.createTransport("SMTP",{
+	service: "SendGrid",
+	  auth: {
+		  user: "samrofl",
+		  pass: "brotest"
+	}
+});
+
+  // setup e-mail data with unicode symbols
+
 
 var mongoose = require('mongoose');
 
@@ -34,15 +49,16 @@ var WebSocketServer = require('ws').Server
 		url: String,
 		score: Number,
 		totalScore: Number,
+		email: String,
 		totalDeath: Number
 	});
 	var user1 = mongoose.model('user1',user);
-	var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg',score: 0,totalScore: 0});
-	var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg',score: 0,totalScore: 0,totalDeath: 0});
-	var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './images/3.jpg',score: 0,totalScore: 0,totalDeath: 0});
-	var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg',score: 0,totalScore: 0,totalDeath: 0});
-	var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg',score: 0,totalScore: 0,totalDeath: 0});
-	var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg',score: 0,totalScore: 0,totalDeath: 0});
+	var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg',score: 0,totalScore: 0,totalDeath: 0,email: 'casper_oakley@hotmail.com'});
+	var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg',score: 0,totalScore: 0,totalDeath: 0,email: 's'});
+	var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './images/3.jpg',score: 0,totalScore: 0,totalDeath: 0,email: 's'});
+	var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg',score: 0,totalScore: 0,totalDeath: 0, email: 's'});
+	var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg',score: 0,totalScore: 0,totalDeath: 0, email: 's'});
+	var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg',score: 0,totalScore: 0,totalDeath: 0, email: 's'});
 	//testUser1.save();
 	//testUser2.save();
 	//testUser3.save();
@@ -155,7 +171,7 @@ app.post('/incoming', function(req, res) {
 			user1.find({}, function (err,docs){
 				for(;count<=totalCount;count++){
 				docs[count-1].remove();
-				var tempUser = new user1({ name: docs[count-1].name,pass: docs[count-1].pass, ID: count,isPicked: true, isDead: false, number: docs[count-1].number, enemyID: count+1,url: docs[count-1].url,score: 0,totalScore: docs[count-1].totalScore,totalDeath:docs[count-1].totalDeath});
+				var tempUser = new user1({ name: docs[count-1].name,pass: docs[count-1].pass, ID: count,isPicked: true, isDead: false, number: docs[count-1].number, enemyID: count+1,url: docs[count-1].url,score: 0,totalScore: docs[count-1].totalScore,totalDeath:docs[count-1].totalDeath,email: docs[count-1].email});
 				tempUser.save();
 				}
 			});
@@ -193,8 +209,30 @@ app.post('/incoming', function(req, res) {
 			});
 		});
 		}
-	});
-  }
+  });
+	}
+		else if(message=='help'){	
+			user1.findOne({'number': from},'email url',function(err,username){
+				console.log('sending ' + username.url);
+		  var mailOptions = {
+			  from: 'AssAss-soc  <Ass@Ass.in>', // sender address
+			  to: username.email, // list of receivers
+			  subject: 'Greetings Assassin', // Subject line
+			  body: 'Attatched is an image of the target. Good luck.', // plaintext body
+			  attachments : [{filename: 'target.jpg',filePath: username.url}]
+		  };
+		   //send mail with defined transport object
+				  smtpTransport.sendMail(mailOptions, function(error, response){
+				  if(error){
+					  console.log(error);
+				  }else{
+					  console.log("Message sent: " + response.message);
+				  }
+
+			  });
+			
+		});
+		}
 });
 var server = http.createServer(app);
 server.listen(app.get('port'), function(){
@@ -207,8 +245,13 @@ var wss = new WebSocketServer({server: server});
 wss.on('connection', function(ws){
 	ws.on('message',function(message){
 		var response = JSON.parse(message);
-				var tempUser = new user1({ name: response.name,pass: response.pass, ID: 0,isPicked: true, isDead: true, number: response.number, enemyID: 0,url: ' ',score: 0,totalScore: 0,totalDeath: 0});
+		if(response.type=='signup'){
+				var tempUser = new user1({ name: response.name,pass: response.pass, ID: 0,isPicked: true, isDead: true, number: response.number, enemyID: 0,url: ' ',score: 0,totalScore: 0,totalDeath: 0,email:response.email});
 				tempUser.save();
 				console.log('new user added. name: ' + response.name);
+		}
+		else if(response.type=='login'){
+			console.log(respone.name + ' attempting to log in');
+		}
 	});
 });
