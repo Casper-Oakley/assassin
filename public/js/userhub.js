@@ -60,6 +60,14 @@ ws.onmessage = function(message){
 		$.post("/incoming",{From:object.number,Body:'help'});
 		alert("Help email sent");
 	});
+	$("#signup").click(function(){
+		if(object.number=="07884036188"){
+			window.location.replace("/signup");
+		}
+		else{
+			alert("Error. Only the president can do that!");
+		}
+	});
 
 };
 

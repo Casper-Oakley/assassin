@@ -3,6 +3,8 @@ var ws = new WebSocket(host);
 ws.onopen = function(event){
 };
 window.onload = function(){
+	var name1 = getCookie("name");
+	if(name1=='Casper Oakley'){
 	document.getElementById('button').onclick = function(){
 		var type1 = 'signup';
 		var name1 = document.getElementById('user').value;
@@ -12,4 +14,9 @@ window.onload = function(){
 		console.log(jsonSend.name);
 		ws.send(JSON.stringify(jsonSend));
 	};
+	}
+	else{
+		alert("Error. Only the president can access this!);
+		window.location.replace("/");
+	}
 };
