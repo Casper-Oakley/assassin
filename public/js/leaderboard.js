@@ -11,7 +11,7 @@ ws.onopen = function(event){
 		var nameAcc=document.createTextNode(name1);
 		var accBox=document.getElementById('nameAccount');
 		accBox.appendChild(nameAcc);
-		var type1 = 'userhub';
+		var type1 = 'leaderboard';
 		var jsonSend = {name: name1,type: type1};
 		ws.send(JSON.stringify(jsonSend));
 	}
@@ -20,28 +20,21 @@ ws.onopen = function(event){
 
 ws.onmessage = function(message){
 	var object = JSON.parse(message.data);
-	var k=document.createTextNode(object.kills);
-	var kills = document.getElementById('kills');
-	kills.appendChild(k);
-	k=document.createTextNode(object.deaths);
-	kills = document.getElementById('deaths');
-	kills.appendChild(k);
-	k=document.createTextNode((object.kills/object.deaths));
-	kills = document.getElementById('kd');
-	kills.appendChild(k);
-	k=document.createTextNode(object.name);
-	kills = document.getElementById('name');
-	kills.appendChild(k);
-	k=document.createTextNode(object.enemyKills);
-	kills = document.getElementById('ekills');
-	kills.appendChild(k);
-	k=document.createTextNode(object.enemyDeaths);
-	kills = document.getElementById('edeaths');
-	kills.appendChild(k);
-	k=document.createTextNode((object.enemyKills/object.enemyDeaths));
-	kills = document.getElementById('ekd');
-	kills.appendChild(k);
-
+	var i=0;
+	object=object.sort(mycomparator);
+	for(;i<object.length;i++){
+		var tab = document.getElementById("table");
+		var tr = document.createElement("TR");
+		var td1 = document.createElement("TD");
+		var td2 = document.createElement("TD");
+		var nm=document.createTextNode(object[i].name);
+		var kll = document.createTextNode(object[i].totalScore);
+		td1.appendChild(nm);
+		td2.appendChild(kll);
+		tr.appendChild(td1);
+		tr.appendChild(td2);
+		tab.appendChild(tr);
+	}
 };
 
 function getCookie(cname)
@@ -55,3 +48,7 @@ function getCookie(cname)
 	}
 	return "";
 }//shamelessly ripped from w3schools <3
+
+function mycomparator(a,b) {
+	  return parseInt(b.totalScore) - parseInt(a.totalScore);
+}//shamelessly ripped from stackoverflow (wow such skill)

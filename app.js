@@ -269,5 +269,10 @@ wss.on('connection', function(ws){
 				});
 			});
 		}
+		else if(response.type=='leaderboard'){
+			user1.find({},'name totalScore totalDeath isDead',function(err,username){
+				ws.send(JSON.stringify(username));
+			});
+		}
 	});
 });
