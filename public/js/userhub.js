@@ -41,6 +41,25 @@ ws.onmessage = function(message){
 	k=document.createTextNode((object.enemyKills/object.enemyDeaths));
 	kills = document.getElementById('ekd');
 	kills.appendChild(k);
+	$("#confirm").click(function(){ 
+		console.log('clicked ' + object.number);
+		$.post("/incoming",{From:object.number,Body:'confirm'});
+		alert("Confirm request sent");
+	});
+	$("#reset").click(function(){ 
+		if(object.number=="07884036188"){
+		console.log('clicked ' + object.number);
+		$.post("/incoming",{From:object.number,Body:'reset'});
+		}
+		else{
+			alert("Error. Only the president can do that!");
+		}
+	});
+	$("#help").click(function(){ 
+		console.log('clicked ' + object.number);
+		$.post("/incoming",{From:object.number,Body:'help'});
+		alert("Help email sent");
+	});
 
 };
 

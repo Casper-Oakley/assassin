@@ -25,9 +25,6 @@ var smtpTransport = nodemailer.createTransport("SMTP",{
 	}
 });
 
-  // setup e-mail data with unicode symbols
-
-
 var mongoose = require('mongoose');
 
 //var MONGOHQ_URL="mongodb://user:password@ds027709.mongolab.com:27709/heroku_app22444850"
@@ -53,12 +50,12 @@ var WebSocketServer = require('ws').Server
 		totalDeath: Number
 	});
 	var user1 = mongoose.model('user1',user);
-	var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg',score: 0,totalScore: 8,totalDeath: 5,email: 'casper_oakley@hotmail.com'});
-	var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg',score: 0,totalScore: 0,totalDeath: 3,email: 's'});
-	var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './images/3.jpg',score: 0,totalScore: 9,totalDeath: 2,email: 's'});
-	var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg',score: 0,totalScore: 2,totalDeath: 1, email: 's'});
-	var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg',score: 0,totalScore: 9,totalDeath: 4, email: 's'});
-	var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg',score: 0,totalScore: 28,totalDeath: 8, email: 's'});
+	var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './public/images/1.jpg',score: 0,totalScore: 8,totalDeath: 5,email: 'casper_oakley@hotmail.com'});
+	var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './public/images/2.jpg',score: 0,totalScore: 0,totalDeath: 3,email: 's'});
+	var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './public/images/3.jpg',score: 0,totalScore: 9,totalDeath: 2,email: 's'});
+	var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './public/images/4.jpg',score: 0,totalScore: 2,totalDeath: 1, email: 's'});
+	var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './public/images/5.jpg',score: 0,totalScore: 9,totalDeath: 4, email: 's'});
+	var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './public/images/6.jpg',score: 0,totalScore: 28,totalDeath: 8, email: 's'});
 	//testUser1.save();
 	//testUser2.save();
 	//testUser3.save();
@@ -106,9 +103,9 @@ app.post('/incoming', function(req, res) {
   var twiml = '<?xml version="1.0" encoding="UTF-8" ?>n<Response>n<Sms>text recieved</Sms>n</Response>';
   res.send(twiml, {'Content-Type':'text/xml'}, 200);
   if(message=='confirm'){
-			 user1.findOne({'number':from},'enemyID ID isDead',function(err,username2){
+			 user1.findOne({'number':from},'enemyID ID isDead score',function(err,username2){
 				 if(username2.isDead == false){
-			 user1.findOne({'ID':username2.enemyID},'name ID enemyID',function(err,username3){
+			 user1.findOne({'ID':username2.enemyID},'name ID enemyID isPicked',function(err,username3){
 			 user1.findOne({'ID':username3.enemyID},'name ID enemyID',function(err,username){
 				  message = 'Your next target is ' + username.name + '. You just killed ' + username3.name;
 				  user1.remove({ID:username3.ID});
@@ -116,6 +113,7 @@ app.post('/incoming', function(req, res) {
 				  username3.save()
 				  user1.remove({ID:username2.ID});
 				  username2.enemyID=username.ID;
+				 console.log(username2);
 				  username2.score=username2.score+1;
 				  username2.save()
           client.sms.messages.create({
@@ -134,10 +132,20 @@ app.post('/incoming', function(req, res) {
           });
 		}
 		else{
-			console.log(from + " sent the message " + message);
+			client.sms.messages.create({
+				to: from,
+				from: '+441482240221',
+				body: "Oh dear you're dead. You can't do that."
+			}, function(error,message){
+	          if(!error){
+		          console.log('wahey message sent successfully.');
+		          console.log('ID is ' + message.sid);
+	          } else{
+		          console.log('error: ' + error);
+	          }
+			 });
 		}
 	  });
-	console.log(from + " sent the message " + message);
   }
   else if(message=='who'){
 	 user1.findOne({'number':from},'enemyID ID',function(err,username2){
@@ -176,7 +184,7 @@ app.post('/incoming', function(req, res) {
 				}
 			});
 			user1.count({}, function( err, count){
-				user1.findOne({ID:count},'ID',function(err,username){
+				user1.findOne({ID:count},'ID enemyID',function(err,username){
 				  user1.remove({ID:username.ID});
 				  username.enemyID=1;
 				  username.save();
@@ -214,6 +222,7 @@ app.post('/incoming', function(req, res) {
 		else if(message=='help'){	
 			user1.findOne({'number': from},'email url',function(err,username){
 				console.log('sending ' + username.url);
+		console.log(username);
 		  var mailOptions = {
 			  from: 'AssAss-soc  <Ass@Ass.in>', // sender address
 			  to: username.email, // list of receivers
@@ -262,9 +271,9 @@ wss.on('connection', function(ws){
 			});
 		}
 		else if(response.type=='userhub'){
-			user1.findOne({name:response.name},'totalScore totalDeath isDead enemyID ID',function(err,username){
+			user1.findOne({name:response.name},'number totalScore totalDeath isDead enemyID ID',function(err,username){
 				user1.findOne({ID:username.enemyID},'totalScore totalDeath name',function(err,username2){
-					var jsonSend = {name: username2.name,kills:username.totalScore,deaths:username.totalDeath,isDead:username.isDead,ID:username.ID,enemyKills:username2.totalScore,enemyDeaths:username2.totalDeath};
+					var jsonSend = {name: username2.name,kills:username.totalScore,deaths:username.totalDeath,isDead:username.isDead,ID:username.ID,enemyKills:username2.totalScore,enemyDeaths:username2.totalDeath, number: username.number};
 					ws.send(JSON.stringify(jsonSend));
 				});
 			});
