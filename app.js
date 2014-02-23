@@ -84,6 +84,7 @@ app.get('/userhub', function(req,res){
 app.post('/incoming', function(req, res) {
   var message = req.body.Body;
   var from = req.body.From;
+  from = from.replace(/^\+44/,0);
   sys.log('From: ' + from + ', Message: ' + message);
   var twiml = '<?xml version="1.0" encoding="UTF-8" ?>n<Response>n<Sms>text recieved</Sms>n</Response>';
   res.send(twiml, {'Content-Type':'text/xml'}, 200);
