@@ -8,10 +8,46 @@ var express = require('express')
   , hbs = require('hbs')
   , async = require('async');
 
-var WebSocketServer = require('ws').Server
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test');
+// npm install mongodb
+var mongodb = require('mongodb')
+  , MongoClient = mongodb.MongoClient;
+   
 
+var mongoose = require('mongoose');
+
+//var MONGOHQ_URL="mongodb://user:password@ds027709.mongolab.com:27709/heroku_app22444850"
+var MONGOHQ_URL="mongodb://user:pass@ds027729.mongolab.com:27729/heroku_app22444850"
+//mongoose.connect('mongodb://localhost/test');
+
+var WebSocketServer = require('ws').Server
+
+//mongodb.MongoClient.connect(MONGOHQ_URL,function(err,db){
+	console.log("wow");
+	mongoose.connect(MONGOHQ_URL);
+	var user = mongoose.Schema({
+		name: String,
+		pass: String,
+		number: String,
+		ID: Number,
+		enemyID: Number,
+		isPicked: Boolean,
+		isDead: Boolean,
+		url: String
+	});
+	var user1 = mongoose.model('user1',user);
+	var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg'});
+	var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg'});
+	var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './images/3.jpg'});
+	var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg'});
+	var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg'});
+	var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg'});
+	//testUser1.save();
+	//testUser2.save();
+	//testUser3.save();
+	//testUser4.save();
+	//testUser5.save();
+	//testUser6.save();
+//});
 var twilio = require('twilio');
 
 var client = new twilio.RestClient('ACd33440265fbfd13384a294c4aca2f63b','0495474119a09a662a5e6744d276aa89');
@@ -44,38 +80,8 @@ app.get('/userhub', function(req,res){
 	res.render('userhub',{title:"User Profile"})
 });
 
-var db = mongoose.connection;
-db.on('error',console.error.bind(console, 'connection error:'));
-db.once('open', function callback(){
-});
-
-var user = mongoose.Schema({
-	name: String,
-	pass: String,
-	number: String,
-	ID: Number,
-	enemyID: Number,
-	isPicked: Boolean,
-	isDead: Boolean,
-	url: String
-});
-
-var user1 = mongoose.model('user1',user);
-
-var testUser1 = new user1({ name: 'Casper Oakley',pass: 'pass1', ID: 1,isPicked: true, isDead: false, number: '07884036188', enemyID: 2,url: './images/1.jpg'});
-var testUser2 = new user1({ name: 'Sam Berkay',pass: 'pass2', ID: 2,isPicked: true, isDead: false, number: '07972032036', enemyID: 3, url: './images/2.jpg'});
-var testUser3 = new user1({ name: 'Chris Birm',pass: 'pass3', ID: 3,isPicked: true, isDead: false, number: '+447810494417', enemyID: 4, url: './images/3.jpg'});
-var testUser4 = new user1({ name: 'Connor Pettitt',pass: 'pass4', ID: 4,isPicked: true, isDead: false, number: '07580501012', enemyID: 5,url: './images/4.jpg'});
-var testUser5 = new user1({ name: 'Luke Geeson',pass: 'pass5', ID: 5,isPicked: true, isDead: false, number: '07597576473', enemyID: 6,url: './images/5.jpg'});
-var testUser6 = new user1({ name: 'Hack Bradbook',pass: 'pass6', ID: 6,isPicked: true, isDead: false, number: '0771651426', enemyID: 1,url: './images/6.jpg'});
 
 
-//testUser1.save()
-//testUser2.save()
-//testUser3.save()
-//testUser4.save()
-//testUser5.save()
-//testUser6.save()
 
 app.post('/incoming', function(req, res) {
   var message = req.body.Body;
